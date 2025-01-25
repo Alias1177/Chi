@@ -23,18 +23,18 @@ func CheckPasswordHash(password, hash string) bool {
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var user User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid format", http.StatusBadRequest)
+		http.Error(w, "Не правильный формат", http.StatusBadRequest)
 		return
 	}
 
 	if _, exists := h.Users[user.ID]; exists {
-		http.Error(w, "User already exists", http.StatusConflict)
+		http.Error(w, "Пользователь уже существует", http.StatusConflict)
 		return
 	}
 
 	hashedPassword, err := HashPassword(user.Password)
 	if err != nil {
-		http.Error(w, "Error creating user", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при создании пользователя", http.StatusInternalServerError)
 		return
 	}
 
@@ -43,7 +43,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(user); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при encode", http.StatusInternalServerError)
 		return
 	}
 }
@@ -52,9 +52,9 @@ func (h *Handler) LoginRegist(w http.ResponseWriter, r *http.Request) {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
-		http.Error(w, "Invalid format", http.StatusBadRequest)
+		http.Error(w, "Не правильный формат", http.StatusBadRequest)
 		return
 	}
 
@@ -67,18 +67,18 @@ func (h *Handler) LoginRegist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if userFound == nil {
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		http.Error(w, "Неправильный логин или пароль", http.StatusUnauthorized)
 		return
 	}
 
 	if !CheckPasswordHash(credentials.Password, userFound.Password) {
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		http.Error(w, "Неправильный логин или пароль", http.StatusUnauthorized)
 		return
 	}
 
 	token, err := auth.GenerateJWT(userFound.Username)
 	if err != nil {
-		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при генерации токена", http.StatusInternalServerError)
 		return
 	}
 
@@ -89,7 +89,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenStr := r.Header.Get("Authorization")
 		if tokenStr == "" {
-			http.Error(w, "Authorization token missing", http.StatusUnauthorized)
+			http.Error(w, "Токен авторизации не найден", http.StatusUnauthorized)
 			return
 		}
 
@@ -99,7 +99,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		claims, err := auth.ValidateJWT(tokenStr)
 		if err != nil {
-			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
+			http.Error(w, "Не правильный токен или его действие закончилось", http.StatusUnauthorized)
 			return
 		}
 

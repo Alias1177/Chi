@@ -10,11 +10,11 @@ import (
 func main() {
 	handlers := api.New()
 	if handlers == nil {
-		log.Fatal("failed to initialize handlers")
+		log.Fatal("Ошибка,он пустой")
 	}
 	r := chi.NewRouter()
 	if r == nil {
-		log.Fatal("failed to initialize router")
+		log.Fatal("Роутер моросит")
 	}
 	api.AttachHandlers(r, handlers)
 	log.Fatal(http.ListenAndServe(":8080", r))

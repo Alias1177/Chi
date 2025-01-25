@@ -15,7 +15,7 @@ func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(userList); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при encode ", http.StatusInternalServerError)
 		return
 	}
 }
@@ -23,23 +23,23 @@ func (h *Handler) GetLogin(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) SetLogin(w http.ResponseWriter, r *http.Request) {
 	var user User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		http.Error(w, "Ошибка при decode", http.StatusBadRequest)
 		return
 	}
 	if user.ID == "" {
-		http.Error(w, "User ID is required", http.StatusBadRequest)
+		http.Error(w, "User ID обязателен", http.StatusBadRequest)
 		return
 	}
 
 	if _, exists := h.Users[user.ID]; exists {
-		http.Error(w, "User with this ID already exists", http.StatusConflict)
+		http.Error(w, "Пользователь с таким ID уже есть", http.StatusConflict)
 		return
 	}
 
 	h.Users[user.ID] = user
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(user); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при encode", http.StatusInternalServerError)
 		return
 	}
 }
@@ -49,12 +49,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	user, exists := h.Users[id]
 	if !exists {
-		http.Error(w, "User not found", http.StatusNotFound)
+		http.Error(w, "Пользователь не найден", http.StatusNotFound)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(user); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при encode", http.StatusInternalServerError)
 		return
 	}
 }
@@ -64,19 +64,19 @@ func (h *Handler) LogPut(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	var updatedUser User
 	if err := json.NewDecoder(r.Body).Decode(&updatedUser); err != nil {
-		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		http.Error(w, "Не правильный формат json", http.StatusBadRequest)
 		return
 	}
 
 	if _, exists := h.Users[id]; !exists {
-		http.Error(w, "User not found", http.StatusNotFound)
+		http.Error(w, "Пользователь не найден", http.StatusNotFound)
 		return
 	}
 	updatedUser.ID = id
 	h.Users[id] = updatedUser
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(updatedUser); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при encode", http.StatusInternalServerError)
 		return
 	}
 }
@@ -85,7 +85,7 @@ func (h *Handler) LoginDel(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	id := chi.URLParam(r, "id")
 	if _, exists := h.Users[id]; !exists {
-		http.Error(w, "User not found", http.StatusNotFound)
+		http.Error(w, "Пользователь не найден", http.StatusNotFound)
 		return
 	}
 	delete(h.Users, id)
