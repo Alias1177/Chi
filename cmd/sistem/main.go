@@ -2,6 +2,7 @@ package main
 
 import (
 	"forLessons/internal/api"
+	"forLessons/internal/api/chain"
 	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
@@ -16,6 +17,6 @@ func main() {
 	if r == nil {
 		log.Fatal("Роутер моросит")
 	}
-	api.AttachHandlers(r, handlers)
+	chain.AttachHandlers(r, handlers)
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
